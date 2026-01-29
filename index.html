@@ -335,7 +335,8 @@
 
     <div class="row">
       <div class="col">
-        <span class="input-label label-alert">ALERGIAS MEDICAMENTOSAS (tudo em negrito)</span>
+        <span class="input-label label-alert">ALERGIAS MEDICAMENTOSAS 
+</span>
         <div class="toggle-group" id="alergias-group">
           <div class="toggle-btn active" onclick="setOption('alergias','Não')">NÃO</div>
           <div class="toggle-btn" onclick="setOption('alergias','Sim')">SIM</div>
@@ -344,7 +345,8 @@
       </div>
 
       <div class="col">
-        <span class="input-label label-alert">INTERNAÇÃO NOS ÚLTIMOS 3 MESES? (tudo em negrito)</span>
+        <span class="input-label label-alert">INTERNAÇÃO NOS ÚLTIMOS 3 MESES? 
+</span>
         <div class="toggle-group" id="internacao-group">
           <div class="toggle-btn active" onclick="setOption('internacao','Não')">NÃO</div>
           <div class="toggle-btn" onclick="setOption('internacao','Sim')">SIM</div>
@@ -397,6 +399,14 @@
       </div>
     </div>
 
+    <div class="section-title">História</div>
+
+    <span class="input-label label-bold">QUEIXA PRINCIPAL (QP)</span>
+    <input type="text" id="qp" class="input-field" style="margin-bottom:10px;" placeholder="Descreva a QP" />
+
+    <span class="input-label label-bold">HISTÓRIA DA DOENÇA ATUAL (HDA)</span>
+    <textarea id="hda" rows="4" placeholder="Descreva a HDA..."></textarea>
+
     <div class="row">
       <div class="col">
         <span class="input-label label-bold">MEDICAMENTOS DE USO CONTÍNUO</span>
@@ -407,14 +417,6 @@
         <textarea id="labs" rows="6" placeholder="Cole/registre aqui os resultados (hemograma, eletrólitos, gaso, etc.)."></textarea>
       </div>
     </div>
-
-    <div class="section-title">História</div>
-
-    <span class="input-label label-bold">QUEIXA PRINCIPAL (QP)</span>
-    <input type="text" id="qp" class="input-field" style="margin-bottom:10px;" placeholder="Descreva a QP" />
-
-    <span class="input-label label-bold">HISTÓRIA DA DOENÇA ATUAL (HDA)</span>
-    <textarea id="hda" rows="4" placeholder="Descreva a HDA..."></textarea>
 
     <div class="section-title">Exame Físico</div>
 
