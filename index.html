@@ -386,28 +386,6 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col">
-        <span class="input-label label-bold">HISTÓRIA PATOLÓGICA PREGRESSA (HPP)</span>
-        <textarea id="hpp" rows="3" placeholder="Comorbidades, cirurgias, internações prévias, uso crônico de medicamentos etc."></textarea>
-      </div>
-      <div class="col">
-        <span class="input-label label-bold">HISTÓRIA FAMILIAR (HF)</span>
-        <textarea id="hf" rows="3" placeholder="Doenças na família, causas de óbito relevantes, doenças hereditárias etc."></textarea>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col">
-        <span class="input-label label-bold">MEDICAMENTOS DE USO CONTÍNUO</span>
-        <textarea id="meds_continuos" rows="6" placeholder="01 - "></textarea>
-      </div>
-      <div class="col">
-        <span class="input-label label-bold">EXAMES LABORATORIAIS</span>
-        <textarea id="labs" rows="6" placeholder="Cole/registre aqui os resultados (hemograma, eletrólitos, gaso, etc.)."></textarea>
-      </div>
-    </div>
-
     <div class="section-title">História</div>
 
     <span class="input-label label-bold">QUEIXA PRINCIPAL (QP)</span>
@@ -415,6 +393,28 @@
 
     <span class="input-label label-bold">HISTÓRIA DA DOENÇA ATUAL (HDA)</span>
     <textarea id="hda" rows="4" placeholder="Descreva a HDA..."></textarea>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">HISTÓRIA PATOLÓGICA PREGRESSA (HPP)</span>
+        <textarea id="hpp" rows="3" placeholder="Comorbidades, cirurgias, internações prévias, uso crônico de medicamentos etc."></textarea>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">MEDICAMENTOS DE USO CONTÍNUO</span>
+        <textarea id="meds_continuos" rows="3" placeholder="01 - "></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">HISTÓRIA FAMILIAR (HF)</span>
+        <textarea id="hf" rows="3" placeholder="Doenças na família, causas de óbito relevantes, doenças hereditárias etc."></textarea>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">EXAMES LABORATORIAIS</span>
+        <textarea id="labs" rows="3" placeholder="Cole/registre aqui os resultados (hemograma, eletrólitos, gaso, etc.)."></textarea>
+      </div>
+    </div>
 
     <div class="section-title">Exame Físico</div>
 
@@ -743,12 +743,6 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       alert("Texto copiado!");
     }
 
-    function renderMarkdownToHTML(text) {
-      return text
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br />');
-    }
-
     function salvarPDF(){
       const texto = document.getElementById("finalReport").value;
       const linhas = texto.split("\n");
@@ -772,7 +766,7 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
   <style>
     @media print {
       @page { margin: 1cm; }
-      body { margin: 0; padding: 0; font-family: "Courier New", monospace; font-size: 11pt; line-height: 1.5; }
+      body { margin: 0; padding: 0; font-family: "Courier New", monospace; font-size: 11pt; line-height: 1.4; }
       .print-header {
         position: fixed;
         top: 0;
@@ -790,9 +784,8 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       }
       .print-line {
         page-break-inside: avoid;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
-      strong { font-weight: bold; }
       h1, h2, h3 { page-break-after: avoid; }
     }
     body { font-family: "Courier New", monospace; margin: 0; padding: 0; }
@@ -801,8 +794,7 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
     .print-header .stamp { background: #00695c; color: white; padding: 5px 15px; display: inline-block; margin: 10px 0; }
     .print-header .info { font-size: 10pt; margin: 5px 0; }
     .print-content { padding: 20px; }
-    .print-line { margin-bottom: 12px; }
-    strong { font-weight: bold; }
+    .print-line { margin-bottom: 8px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -814,7 +806,7 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
     <div class="info">DATA/HORA: ${dataHora}</div>
   </div>
   <div class="print-content">
-    ${linhas.map(l => `<div class="print-line">${renderMarkdownToHTML(l.replace(/</g, "&lt;").replace(/>/g, "&gt;"))}</div>`).join("")}
+    ${linhas.map(l => `<div class="print-line">${l.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`).join("")}
   </div>
 </body>
 </html>
