@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anamnese Fast Click - Silvestre Azevedo</title>
+
+  <style>
+    :root{
+      --primary:#00695c;
+      --light:#b2dfdb;
+      --bg:#f5f7fa;
+      --white:#ffffff;
+      --alert:#d32f2f;
+      --text:#333;
+      --gray1:#616161;
+      --gray2:#424242;
+    }
+    body{
+      font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:var(--bg);
+      margin:0;
+      padding:20px;
+      color:var(--text);
+    }
+    .container{
+      max-width:900px;
+      margin:auto;
+      background:var(--white);
+      padding:30px;
+      border-radius:12px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.08);
+      position:relative;
+    }
+
+    .header{
+      text-align:center;
+      margin-bottom:30px;
+      border-bottom:2px solid var(--light);
+      padding-bottom:20px;
+    }
+    .header h1{
+      color:var(--primary);
+      margin:0;
+      font-size:2rem;
+      text-transform:uppercase;
+      letter-spacing:1px;
+    }
+    .author{
+      color:#666;
+      font-size:0.9rem;
+      letter-spacing:1px;
+      font-weight:600;
+    }
+    .profile-pic{
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      border:3px solid var(--primary);
+      margin-top:15px;
+      object-fit:cover;
+      box-shadow:0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .section-title{
+      background:var(--primary);
+      color:white;
+      padding:10px 15px;
+      border-radius:6px;
+      margin-top:30px;
+      margin-bottom:15px;
+      font-weight:900;
+      text-transform:uppercase;
+      font-size:0.95rem;
+    }
+
+    .row{
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
+      margin-bottom:15px;
+    }
+    .col{
+      flex:1;
+      min-width:200px;
+    }
+
+    .input-label{
+      display:block;
+      font-size:0.85rem;
+      font-weight:800;
+      color:#555;
+      margin-bottom:5px;
+    }
+    .label-bold{
+      font-weight:900;
+      color:#111;
+    }
+    .label-alert{
+      font-weight:900;
+      color:var(--alert);
+    }
+
+    .input-field, select, textarea{
+      width:100%;
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:6px;
+      box-sizing:border-box;
+      font-family:inherit;
+      font-size:0.95rem;
+      background:#fafafa;
+    }
+    .input-field:focus, textarea:focus, select:focus{
+      border-color:var(--primary);
+      outline:none;
+      background:#fff;
+    }
+
+    textarea{ resize:vertical; }
+
+    .detail-input{
+      display:none;
+      margin-top:8px;
+      border-left:3px solid var(--primary);
+      padding-left:10px;
+      background:#fff;
+    }
+
+    .toggle-group{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .toggle-btn{
+      border:1px solid #ccc;
+      background:#e0e0e0;
+      padding:8px 18px;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:0.85rem;
+      user-select:none;
+      transition:0.2s;
+      font-weight:900;
+    }
+    .toggle-btn:hover{ background:#d0d0d0; }
+    .toggle-btn.active{
+      background:var(--primary);
+      color:white;
+      border-color:var(--primary);
+      box-shadow:0 2px 5px rgba(0,105,92,0.3);
+    }
+    .toggle-btn.alert-active{
+      background:var(--alert);
+      border-color:var(--alert);
+      color:white;
+    }
+
+    .vitals-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+      gap:12px;
+    }
+    .vital-box input{
+      text-align:center;
+      font-weight:900;
+      color:var(--primary);
+      font-size:1.05rem;
+    }
+
+    .action-area{
+      margin-top:40px;
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
+    }
+    .btn-generate{
+      flex:1;
+      background:linear-gradient(135deg, #00695c 0%, #004d40 100%);
+      color:white;
+      padding:20px;
+      border:none;
+      border-radius:10px;
+      font-size:1.1rem;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 4px 15px rgba(0,77,64,0.3);
+      transition:transform 0.2s;
+    }
+    .btn-generate:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(0,77,64,0.35);
+    }
+
+    .btn-reset{
+      flex:1;
+      background:linear-gradient(135deg, var(--gray1) 0%, var(--gray2) 100%);
+      color:white;
+      padding:20px;
+      border:none;
+      border-radius:10px;
+      font-size:1.05rem;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 4px 15px rgba(0,0,0,0.18);
+      transition:transform 0.2s;
+    }
+    .btn-reset:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(0,0,0,0.22);
+    }
+
+    .modal{
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.6);
+      z-index:1000;
+      justify-content:center;
+      align-items:center;
+      backdrop-filter:blur(2px);
+    }
+    .modal-content{
+      background:white;
+      width:90%;
+      max-width:800px;
+      height:85vh;
+      padding:25px;
+      border-radius:12px;
+      display:flex;
+      flex-direction:column;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3);
+    }
+    #finalReport{
+      flex:1;
+      font-family:"Courier New", monospace;
+      padding:15px;
+      font-size:0.95rem;
+      resize:none;
+      margin-bottom:15px;
+      border:1px solid #ddd;
+      border-radius:6px;
+      background:#f9f9f9;
+      line-height:1.4;
+      white-space:pre-wrap;
+    }
+    .modal-actions{
+      display:flex;
+      gap:15px;
+    }
+    .btn-modal{
+      flex:1;
+      padding:15px;
+      border:none;
+      border-radius:8px;
+      font-weight:900;
+      cursor:pointer;
+      color:white;
+      font-size:1rem;
+    }
+    .btn-copy{ background:var(--primary); }
+    .btn-close{ background:var(--alert); }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Anamnese Fast Click</h1>
+      <span class="author">By Silvestre Azevedo</span>
+      <div style="text-align:center;">
+        <img src="perfil.jpg" class="profile-pic" onerror="this.style.display='none'" alt="Foto perfil" />
+      </div>
+    </div>
+
+    <div class="section-title">Admissão / Evolução</div>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">PACIENTE</span>
+        <input type="text" id="nome" class="input-field" placeholder="Nome do paciente" />
+      </div>
+      <div class="col" style="flex:0.35;">
+        <span class="input-label label-bold">IDADE</span>
+        <input type="number" id="idade" class="input-field" placeholder="anos" />
+      </div>
+      <div class="col" style="flex:0.35;">
+        <span class="input-label label-bold">SEXO</span>
+        <select id="sexo" class="input-field">
+          <option value="M" selected>M</option>
+          <option value="F">F</option>
+        </select>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">RELIGIÃO</span>
+        <input type="text" id="religiao" class="input-field" value="Católico" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-alert">ALERGIAS MEDICAMENTOSAS (tudo em negrito)</span>
+        <div class="toggle-group" id="alergias-group">
+          <div class="toggle-btn active" onclick="setOption('alergias','Não')">NÃO</div>
+          <div class="toggle-btn" onclick="setOption('alergias','Sim')">SIM</div>
+        </div>
+        <input type="text" id="alergias-detalhe" class="input-field detail-input" placeholder="Quais medicamentos? (IMPORTANTE)" />
+      </div>
+
+      <div class="col">
+        <span class="input-label label-alert">INTERNAÇÃO NOS ÚLTIMOS 3 MESES? (tudo em negrito)</span>
+        <div class="toggle-group" id="internacao-group">
+          <div class="toggle-btn active" onclick="setOption('internacao','Não')">NÃO</div>
+          <div class="toggle-btn" onclick="setOption('internacao','Sim')">SIM</div>
+        </div>
+        <input type="text" id="internacao-detalhe" class="input-field detail-input" placeholder="Motivo / onde / datas (se souber)" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col" style="flex-basis:100%;">
+        <span class="input-label label-bold">HÁBITOS DE VIDA (negrito)</span>
+      </div>
+
+      <div class="col">
+        <span class="input-label">Tabagismo</span>
+        <div class="toggle-group" id="tabagismo-group">
+          <div class="toggle-btn active" onclick="setOption('tabagismo','Não')">NÃO</div>
+          <div class="toggle-btn" onclick="setOption('tabagismo','Sim')">SIM</div>
+        </div>
+        <input type="text" id="tabagismo-detalhe" class="input-field detail-input" placeholder="Qtd / frequência / maços-ano" />
+      </div>
+
+      <div class="col">
+        <span class="input-label">Etilismo</span>
+        <div class="toggle-group" id="etilismo-group">
+          <div class="toggle-btn active" onclick="setOption('etilismo','Não')">NÃO</div>
+          <div class="toggle-btn" onclick="setOption('etilismo','Sim')">SIM</div>
+        </div>
+        <input type="text" id="etilismo-detalhe" class="input-field detail-input" placeholder="Qtd / frequência / tempo de uso" />
+      </div>
+
+      <div class="col">
+        <span class="input-label">Drogas ilícitas</span>
+        <div class="toggle-group" id="drogas-group">
+          <div class="toggle-btn active" onclick="setOption('drogas','Não')">NÃO</div>
+          <div class="toggle-btn" onclick="setOption('drogas','Sim')">SIM</div>
+        </div>
+        <input type="text" id="drogas-detalhe" class="input-field detail-input" placeholder="Qual substância / padrão de uso" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">HISTÓRIA PATOLÓGICA PREGRESSA (HPP)</span>
+        <textarea id="hpp" rows="3" placeholder="Comorbidades, cirurgias, internações prévias, uso crônico de medicamentos etc."></textarea>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">HISTÓRIA FAMILIAR (HF)</span>
+        <textarea id="hf" rows="3" placeholder="Doenças na família, causas de óbito relevantes, doenças hereditárias etc."></textarea>
+      </div>
+    </div>
+
+    <!-- NOVOS CAMPOS: MEDS E LABS -->
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">MEDICAMENTOS DE USO CONTÍNUO</span>
+        <textarea id="meds_continuos" rows="6" placeholder="01 - "></textarea>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">EXAMES LABORATORIAIS</span>
+        <textarea id="labs" rows="6" placeholder="Cole/registre aqui os resultados (hemograma, eletrólitos, gaso, etc.)."></textarea>
+      </div>
+    </div>
+
+    <div class="section-title">História</div>
+
+    <span class="input-label label-bold">QUEIXA PRINCIPAL (QP)</span>
+    <input type="text" id="qp" class="input-field" style="margin-bottom:10px;" placeholder="Descreva a QP" />
+
+    <span class="input-label label-bold">HISTÓRIA DA DOENÇA ATUAL (HDA)</span>
+    <textarea id="hda" rows="4" placeholder="Descreva a HDA..."></textarea>
+
+    <div class="section-title">Exame Físico</div>
+
+    <span class="input-label label-bold">Sinais Vitais</span>
+    <div class="vitals-grid" style="margin-bottom:12px;">
+      <div class="vital-box">
+        <span class="input-label">PA (mmHg)</span>
+        <input type="text" id="pa" class="input-field" placeholder="120x80" />
+      </div>
+      <div class="vital-box">
+        <span class="input-label">FC (bpm)</span>
+        <input type="number" id="fc" class="input-field" placeholder="80" />
+      </div>
+      <div class="vital-box">
+        <span class="input-label">FR (ipm)</span>
+        <input type="number" id="fr" class="input-field" placeholder="18" />
+      </div>
+      <div class="vital-box">
+        <span class="input-label">SatO2 (%)</span>
+        <input type="number" id="sat" class="input-field" placeholder="98" />
+      </div>
+      <div class="vital-box">
+        <span class="input-label">T (°C)</span>
+        <input type="number" step="0.1" id="temp" class="input-field" placeholder="36.5" />
+      </div>
+      <div class="vital-box">
+        <span class="input-label">Glicemia (mg/dL)</span>
+        <input type="number" id="hgt" class="input-field" placeholder="100" />
+      </div>
+    </div>
+
+    <div class="section-title">Ectoscopia e Segmentar</div>
+
+    <span class="input-label label-bold">ECTOSCOPIA</span>
+    <textarea id="ef_ectoscopia" rows="3"></textarea>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="col">
+        <span class="input-label label-bold">Cabeça e pescoço</span>
+        <textarea id="ef_cp" rows="3"></textarea>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">ACV</span>
+        <textarea id="ef_acv" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">AP</span>
+        <textarea id="ef_ap" rows="3"></textarea>
+      </div>
+      <div class="col">
+        <span class="input-label label-bold">ABD</span>
+        <textarea id="ef_abd" rows="3"></textarea>
+      </div>
+    </div>
+
+    <span class="input-label label-bold">NEURO</span>
+    <textarea id="ef_neuro" rows="3"></textarea>
+
+    <span class="input-label label-bold" style="margin-top:10px;">MEMBROS</span>
+    <textarea id="ef_membros" rows="2"></textarea>
+
+    <div class="section-title">Exame Neurológico Detalhado</div>
+    <textarea id="neuro_detalhado" rows="10"></textarea>
+
+    <div class="action-area">
+      <button class="btn-generate" onclick="gerarRelatorio()">GERAR EVOLUÇÃO</button>
+      <button class="btn-reset" onclick="limparTudo()">LIMPAR TUDO</button>
+    </div>
+  </div>
+
+  <div id="modalResultado" class="modal">
+    <div class="modal-content">
+      <h2 style="color:var(--primary); text-align:center; margin-bottom:10px;">Relatório Final</h2>
+      <textarea id="finalReport" readonly></textarea>
+
+      <div class="modal-actions">
+        <button class="btn-modal btn-copy" onclick="copiar()">Copiar Texto</button>
+        <button class="btn-modal btn-close" onclick="fecharModal()">Fechar / Editar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------
+    // Estado dos toggles (Sim/Não)
+    // -------------------------
+    const state = {
+      alergias: "Não",
+      internacao: "Não",
+      tabagismo: "Não",
+      etilismo: "Não",
+      drogas: "Não"
+    };
+    const alertTypes = new Set(["alergias","internacao","tabagismo","etilismo","drogas"]);
+
+    function setOption(type, value){
+      state[type] = value;
+
+      const group = document.getElementById(type + "-group");
+      const btns = group.getElementsByClassName("toggle-btn");
+
+      Array.from(btns).forEach(b => {
+        b.classList.remove("active");
+        b.classList.remove("alert-active");
+        if (b.innerText.trim().toUpperCase() === value.toUpperCase()){
+          b.classList.add("active");
+          if (value === "Sim" && alertTypes.has(type)) b.classList.add("alert-active");
+        }
+      });
+
+      const detail = document.getElementById(type + "-detalhe");
+      if (detail){
+        detail.style.display = (value === "Sim") ? "block" : "none";
+        if (value !== "Sim") detail.value = "";
+        if (value === "Sim") detail.focus();
+      }
+    }
+
+    function v(id){
+      const el = document.getElementById(id);
+      return (el && el.value) ? el.value.trim() : "";
+    }
+
+    // -------------------------
+    // Gênero automático (M/F) nos textos padrão
+    // -------------------------
+    const templates = {
+      M: {
+        ef_ectoscopia: "REG, regular estado nutricional, mucosas coradas e hidratadas, afebril, acianótico, anictérico, lúcido e orientado (alo e autopsíquico) em tempo e espaço, comunicativo, eupneico, fácies atípica.",
+        ef_cp: "ausência de linfonodomegalias palpáveis, ausência de turgência jugular, não ausculto sopros carotídeos.",
+        ef_acv: "RCR, BNF em 2T, sem sopros audíveis. Ictus cordis não palpável. Pulsos presentes, amplos e simétricos. TEC < 3s.",
+        ef_ap: "MV+ bilateralmente audível, sem ruídos adventícios. Tórax atípico. Eupneico. Sem sinais de esforço.",
+        ef_abd: "plano, flácido, normotenso, sem visceromegalias, indolor, RHA+, DB negativa, sem peritonite.",
+        ef_neuro: "ECG 15, pupilas isocóricas e fotorreagentes, MOE preservada, face simétrica, sem déficits focais agudos, força e sensibilidade preservadas, coordenação normal.",
+        ef_membros: "sem edemas, panturrilhas livres, TEC < 3 segs.",
+        neuro_detalhado:
+`Nível de Consciência: Vigil e desperto, auto e alo orientado
+Fala e linguagem preservadas, ausência de afasia e disartria.
+
+Nervos cranianos: Pupilas isocóricas e fotorreagentes, MOE preservada, campimetria normal, face simétrica.
+
+Motricidade: Tônus e trofismo preservado, força grau V global.
+
+Sensibilidade: tátil, térmica, dolorosa e vibratória preservadas.
+
+Reflexos: grau 2 simétricos. Cutaneoplantar em flexão bilateral.
+
+Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
+      },
+      F: {
+        ef_ectoscopia: "REG, regular estado nutricional, mucosas coradas e hidratadas, afebril, acianótica, anictérica, lúcida e orientada (alo e autopsíquica) em tempo e espaço, comunicativa, eupneica, fácies atípica.",
+        ef_cp: "ausência de linfonodomegalias palpáveis, ausência de turgência jugular, não ausculto sopros carotídeos.",
+        ef_acv: "RCR, BNF em 2T, sem sopros audíveis. Ictus cordis não palpável. Pulsos presentes, amplos e simétricos. TEC < 3s.",
+        ef_ap: "MV+ bilateralmente audível, sem ruídos adventícios. Tórax atípico. Eupneica. Sem sinais de esforço.",
+        ef_abd: "plano, flácido, normotenso, sem visceromegalias, indolor, RHA+, DB negativa, sem peritonite.",
+        ef_neuro: "ECG 15, pupilas isocóricas e fotorreagentes, MOE preservada, face simétrica, sem déficits focais agudos, força e sensibilidade preservadas, coordenação normal.",
+        ef_membros: "sem edemas, panturrilhas livres, TEC < 3 segs.",
+        neuro_detalhado:
+`Nível de Consciência: Vigil e desperta, auto e alo orientada
+Fala e linguagem preservadas, ausência de afasia e disartria.
+
+Nervos cranianos: Pupilas isocóricas e fotorreagentes, MOE preservada, campimetria normal, face simétrica.
+
+Motricidade: Tônus e trofismo preservado, força grau V global.
+
+Sensibilidade: tátil, térmica, dolorosa e vibratória preservadas.
+
+Reflexos: grau 2 simétricos. Cutaneoplantar em flexão bilateral.
+
+Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
+      }
+    };
+
+    const lastAuto = {};
+
+    function initLastAuto(sexo){
+      const t = templates[sexo] || templates.M;
+      Object.keys(t).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        lastAuto[id] = (el.value || "").trim();
+      });
+    }
+
+    function aplicarGenero(sexo){
+      const t = templates[sexo] || templates.M;
+
+      Object.keys(t).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const atual = (el.value || "").trim();
+        const anterior = (lastAuto[id] || "").trim();
+
+        if (atual === "" || atual === anterior){
+          el.value = t[id];
+          lastAuto[id] = t[id];
+        }
+      });
+    }
+
+    document.getElementById("sexo").addEventListener("change", (e) => {
+      aplicarGenero(e.target.value);
+    });
+
+    // -------------------------
+    // Medicamentos de uso contínuo (numeração automática)
+    // -------------------------
+    function pad2(n){
+      return String(n).padStart(2, "0");
+    }
+
+    function ensureMedsPrefix(){
+      const ta = document.getElementById("meds_continuos");
+      if (!ta) return;
+      if (ta.value.trim() === ""){
+        ta.value = "01 - ";
+      }
+    }
+
+    function nextMedsIndex(text){
+      const matches = text.match(/^(\d{2})\s*-\s*/gm);
+      if (!matches || matches.length === 0) return 1;
+      const last = matches[matches.length - 1];
+      const n = parseInt(last, 10);
+      return isNaN(n) ? (matches.length + 1) : (n + 1);
+    }
+
+    function handleMedsEnter(e){
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+
+      const ta = e.target;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+
+      const before = ta.value.slice(0, start);
+      const after = ta.value.slice(end);
+
+      const idx = nextMedsIndex(before);
+      const insert = `\n${pad2(idx)} - `;
+
+      ta.value = before + insert + after;
+
+      const caret = (before + insert).length;
+      ta.selectionStart = ta.selectionEnd = caret;
+    }
+
+    function initMedsField(){
+      const ta = document.getElementById("meds_continuos");
+      if (!ta) return;
+      ensureMedsPrefix();
+      ta.addEventListener("focus", ensureMedsPrefix);
+      ta.addEventListener("keydown", handleMedsEnter);
+    }
+
+    // -------------------------
+    // Montagem do relatório
+    // -------------------------
+    function yesNoBoldLine(label, type){
+      const valYN = state[type] === "Sim" ? "SIM" : "NÃO";
+      const det = v(type + "-detalhe");
+      return `**${label}: ${valYN}${det ? " — " + det : ""}**`;
+    }
+
+    function habitLine(label, type){
+      const sim = state[type] === "Sim";
+      const det = v(type + "-detalhe");
+      const yn = sim ? "**SIM**" : "NÃO";
+      return `${label}: ${yn}${det ? " (" + det + ")" : ""}`;
+    }
+
+    function montarTextoRelatorio(){
+      const linhas = [];
+
+      linhas.push("## ADMISSÃO / EVOLUÇÃO ##");
+      linhas.push("");
+      linhas.push(`PACIENTE: ${v("nome")}`);
+      linhas.push(`IDADE: ${v("idade")}    SEXO: ${v("sexo")}    RELIGIÃO: ${v("religiao")}`);
+      linhas.push("");
+      linhas.push(yesNoBoldLine("ALERGIAS MEDICAMENTOSAS", "alergias"));
+      linhas.push(yesNoBoldLine("INTERNAÇÃO NOS ÚLTIMOS 3 MESES?", "internacao"));
+      linhas.push("");
+      linhas.push("**HÁBITOS DE VIDA:**");
+      linhas.push(habitLine("Tabagismo", "tabagismo"));
+      linhas.push(habitLine("Etilismo", "etilismo"));
+      linhas.push(habitLine("Drogas ilícitas", "drogas"));
+      linhas.push("");
+      linhas.push("**HISTÓRIA PATOLÓGICA PREGRESSA (HPP):**");
+      linhas.push(v("hpp"));
+      linhas.push("");
+      linhas.push("**HISTÓRIA FAMILIAR (HF):**");
+      linhas.push(v("hf"));
+      linhas.push("");
+      linhas.push("**MEDICAMENTOS DE USO CONTÍNUO:**");
+      linhas.push(v("meds_continuos"));
+      linhas.push("");
+      linhas.push("**EXAMES LABORATORIAIS:**");
+      linhas.push(v("labs"));
+      linhas.push("");
+      linhas.push("**QUEIXA PRINCIPAL (QP):**");
+      linhas.push(v("qp"));
+      linhas.push("");
+      linhas.push("**HISTÓRIA DA DOENÇA ATUAL (HDA):**");
+      linhas.push(v("hda"));
+      linhas.push("");
+      linhas.push("# EXAME FÍSICO #");
+      linhas.push("Sinais Vitais");
+      linhas.push(`PA: ${v("pa")} mmHg    FC: ${v("fc")} bpm    FR: ${v("fr")} ipm    SatO2: ${v("sat")}%    T: ${v("temp")}°C    Glicemia: ${v("hgt")} mg/dL`);
+      linhas.push("");
+      linhas.push("**ECTOSCOPIA:**");
+      linhas.push(v("ef_ectoscopia"));
+      linhas.push("");
+      linhas.push("**Cabeça e pescoço:**");
+      linhas.push(v("ef_cp"));
+      linhas.push("");
+      linhas.push("**ACV:**");
+      linhas.push(v("ef_acv"));
+      linhas.push("");
+      linhas.push("**AP:**");
+      linhas.push(v("ef_ap"));
+      linhas.push("");
+      linhas.push("**ABD:**");
+      linhas.push(v("ef_abd"));
+      linhas.push("");
+      linhas.push("**NEURO:**");
+      linhas.push(v("ef_neuro"));
+      linhas.push("");
+      linhas.push("**MEMBROS:**");
+      linhas.push(v("ef_membros"));
+      linhas.push("");
+      linhas.push("= Exame Neurológico Detalhado =");
+      linhas.push(v("neuro_detalhado"));
+
+      return linhas.join("\n");
+    }
+
+    function gerarRelatorio(){
+      const texto = montarTextoRelatorio();
+      document.getElementById("finalReport").value = texto;
+      document.getElementById("modalResultado").style.display = "flex";
+    }
+
+    async function copiar(){
+      const txt = document.getElementById("finalReport").value;
+
+      try{
+        if (navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(txt);
+          alert("Copiado!");
+          return;
+        }
+      }catch(e){}
+
+      const area = document.getElementById("finalReport");
+      area.select();
+      area.setSelectionRange(0, 999999);
+      try{
+        document.execCommand("copy");
+        alert("Copiado!");
+      }catch(e){
+        alert("Não foi possível copiar automaticamente. Selecione e copie manualmente.");
+      }
+    }
+
+    function fecharModal(){
+      document.getElementById("modalResultado").style.display = "none";
+    }
+
+    function limparTudo(){
+      const ok = confirm("Deseja limpar todos os campos e iniciar uma nova anamnese?");
+      if (!ok) return;
+
+      const sexoAtual = document.getElementById("sexo").value;
+
+      document.getElementById("nome").value = "";
+      document.getElementById("idade").value = "";
+      document.getElementById("religiao").value = "Católico";
+
+      document.getElementById("qp").value = "";
+      document.getElementById("hda").value = "";
+      document.getElementById("hpp").value = "";
+      document.getElementById("hf").value = "";
+      document.getElementById("meds_continuos").value = "";
+      document.getElementById("labs").value = "";
+
+      document.getElementById("pa").value = "";
+      document.getElementById("fc").value = "";
+      document.getElementById("fr").value = "";
+      document.getElementById("sat").value = "";
+      document.getElementById("temp").value = "";
+      document.getElementById("hgt").value = "";
+
+      ["ef_ectoscopia","ef_cp","ef_acv","ef_ap","ef_abd","ef_neuro","ef_membros","neuro_detalhado"].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+        lastAuto[id] = "";
+      });
+
+      aplicarGenero(sexoAtual);
+      initLastAuto(sexoAtual);
+
+      setOption("alergias", "Não");
+      setOption("internacao", "Não");
+      setOption("tabagismo", "Não");
+      setOption("etilismo", "Não");
+      setOption("drogas", "Não");
+
+      document.getElementById("finalReport").value = "";
+      fecharModal();
+
+      ensureMedsPrefix();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    window.addEventListener("load", () => {
+      const sexoAtual = document.getElementById("sexo").value;
+      aplicarGenero(sexoAtual);
+      initLastAuto(sexoAtual);
+      initMedsField();
+      ensureMedsPrefix();
+    });
+  </script>
+</body>
+</html>
