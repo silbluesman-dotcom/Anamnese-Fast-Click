@@ -15,6 +15,7 @@
       --text:#333;
       --gray1:#616161;
       --gray2:#424242;
+      --pdf:#0d47a1;
     }
     body{
       font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -175,13 +176,13 @@
       flex-wrap:wrap;
     }
     .btn-generate{
-      flex:1;
+      flex:2;
       background:linear-gradient(135deg, #00695c 0%, #004d40 100%);
       color:white;
       padding:20px;
       border:none;
       border-radius:10px;
-      font-size:1.1rem;
+      font-size:1.05rem;
       font-weight:900;
       cursor:pointer;
       box-shadow:0 4px 15px rgba(0,77,64,0.3);
@@ -223,10 +224,10 @@
     }
     .modal-content{
       background:white;
-      width:90%;
-      max-width:800px;
-      height:85vh;
-      padding:25px;
+      width:92%;
+      max-width:900px;
+      height:88vh;
+      padding:22px;
       border-radius:12px;
       display:flex;
       flex-direction:column;
@@ -238,16 +239,18 @@
       padding:15px;
       font-size:0.95rem;
       resize:none;
-      margin-bottom:15px;
+      margin-bottom:12px;
       border:1px solid #ddd;
       border-radius:6px;
       background:#f9f9f9;
       line-height:1.4;
       white-space:pre-wrap;
     }
+
     .modal-actions{
       display:flex;
       gap:15px;
+      flex-wrap:wrap;
     }
     .btn-modal{
       flex:1;
@@ -258,9 +261,34 @@
       cursor:pointer;
       color:white;
       font-size:1rem;
+      min-width:160px;
     }
     .btn-copy{ background:var(--primary); }
+    .btn-pdf{ background:var(--pdf); }
     .btn-close{ background:var(--alert); }
+
+    @media print {
+      body { margin: 0; padding: 0; }
+      .print-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 10px 20px;
+        border-bottom: 2px solid #00695c;
+        z-index: 1000;
+      }
+      .print-content {
+        margin-top: 120px;
+        padding: 20px;
+        page-break-inside: avoid;
+      }
+      .print-line {
+        page-break-inside: avoid;
+        margin-bottom: 8px;
+      }
+    }
   </style>
 </head>
 
@@ -295,6 +323,13 @@
       <div class="col">
         <span class="input-label label-bold">RELIGIÃO</span>
         <input type="text" id="religiao" class="input-field" value="Católico" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <span class="input-label label-bold">UNIDADE / SETOR</span>
+        <input type="text" id="unidade" class="input-field" placeholder="Ex.: PS / UTI / Enfermaria / UBS" />
       </div>
     </div>
 
@@ -362,7 +397,6 @@
       </div>
     </div>
 
-    <!-- NOVOS CAMPOS: MEDS E LABS -->
     <div class="row">
       <div class="col">
         <span class="input-label label-bold">MEDICAMENTOS DE USO CONTÍNUO</span>
@@ -458,18 +492,15 @@
     <div class="modal-content">
       <h2 style="color:var(--primary); text-align:center; margin-bottom:10px;">Relatório Final</h2>
       <textarea id="finalReport" readonly></textarea>
-
       <div class="modal-actions">
         <button class="btn-modal btn-copy" onclick="copiar()">Copiar Texto</button>
+        <button class="btn-modal btn-pdf" onclick="salvarPDF()">Salvar PDF</button>
         <button class="btn-modal btn-close" onclick="fecharModal()">Fechar / Editar</button>
       </div>
     </div>
   </div>
 
   <script>
-    // -------------------------
-    // Estado dos toggles (Sim/Não)
-    // -------------------------
     const state = {
       alergias: "Não",
       internacao: "Não",
@@ -481,10 +512,8 @@
 
     function setOption(type, value){
       state[type] = value;
-
       const group = document.getElementById(type + "-group");
       const btns = group.getElementsByClassName("toggle-btn");
-
       Array.from(btns).forEach(b => {
         b.classList.remove("active");
         b.classList.remove("alert-active");
@@ -493,7 +522,6 @@
           if (value === "Sim" && alertTypes.has(type)) b.classList.add("alert-active");
         }
       });
-
       const detail = document.getElementById(type + "-detalhe");
       if (detail){
         detail.style.display = (value === "Sim") ? "block" : "none";
@@ -507,9 +535,6 @@
       return (el && el.value) ? el.value.trim() : "";
     }
 
-    // -------------------------
-    // Gênero automático (M/F) nos textos padrão
-    // -------------------------
     const templates = {
       M: {
         ef_ectoscopia: "REG, regular estado nutricional, mucosas coradas e hidratadas, afebril, acianótico, anictérico, lúcido e orientado (alo e autopsíquico) em tempo e espaço, comunicativo, eupneico, fácies atípica.",
@@ -519,8 +544,7 @@
         ef_abd: "plano, flácido, normotenso, sem visceromegalias, indolor, RHA+, DB negativa, sem peritonite.",
         ef_neuro: "ECG 15, pupilas isocóricas e fotorreagentes, MOE preservada, face simétrica, sem déficits focais agudos, força e sensibilidade preservadas, coordenação normal.",
         ef_membros: "sem edemas, panturrilhas livres, TEC < 3 segs.",
-        neuro_detalhado:
-`Nível de Consciência: Vigil e desperto, auto e alo orientado
+        neuro_detalhado: `Nível de Consciência: Vigil e desperto, auto e alo orientado
 Fala e linguagem preservadas, ausência de afasia e disartria.
 
 Nervos cranianos: Pupilas isocóricas e fotorreagentes, MOE preservada, campimetria normal, face simétrica.
@@ -541,8 +565,7 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
         ef_abd: "plano, flácido, normotenso, sem visceromegalias, indolor, RHA+, DB negativa, sem peritonite.",
         ef_neuro: "ECG 15, pupilas isocóricas e fotorreagentes, MOE preservada, face simétrica, sem déficits focais agudos, força e sensibilidade preservadas, coordenação normal.",
         ef_membros: "sem edemas, panturrilhas livres, TEC < 3 segs.",
-        neuro_detalhado:
-`Nível de Consciência: Vigil e desperta, auto e alo orientada
+        neuro_detalhado: `Nível de Consciência: Vigil e desperta, auto e alo orientada
 Fala e linguagem preservadas, ausência de afasia e disartria.
 
 Nervos cranianos: Pupilas isocóricas e fotorreagentes, MOE preservada, campimetria normal, face simétrica.
@@ -570,14 +593,11 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
 
     function aplicarGenero(sexo){
       const t = templates[sexo] || templates.M;
-
       Object.keys(t).forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-
         const atual = (el.value || "").trim();
         const anterior = (lastAuto[id] || "").trim();
-
         if (atual === "" || atual === anterior){
           el.value = t[id];
           lastAuto[id] = t[id];
@@ -589,19 +609,12 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       aplicarGenero(e.target.value);
     });
 
-    // -------------------------
-    // Medicamentos de uso contínuo (numeração automática)
-    // -------------------------
-    function pad2(n){
-      return String(n).padStart(2, "0");
-    }
+    function pad2(n){ return String(n).padStart(2, "0"); }
 
     function ensureMedsPrefix(){
       const ta = document.getElementById("meds_continuos");
       if (!ta) return;
-      if (ta.value.trim() === ""){
-        ta.value = "01 - ";
-      }
+      if (ta.value.trim() === "") ta.value = "01 - ";
     }
 
     function nextMedsIndex(text){
@@ -615,19 +628,14 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
     function handleMedsEnter(e){
       if (e.key !== "Enter") return;
       e.preventDefault();
-
       const ta = e.target;
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
-
       const before = ta.value.slice(0, start);
       const after = ta.value.slice(end);
-
       const idx = nextMedsIndex(before);
       const insert = `\n${pad2(idx)} - `;
-
       ta.value = before + insert + after;
-
       const caret = (before + insert).length;
       ta.selectionStart = ta.selectionEnd = caret;
     }
@@ -640,9 +648,6 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       ta.addEventListener("keydown", handleMedsEnter);
     }
 
-    // -------------------------
-    // Montagem do relatório
-    // -------------------------
     function yesNoBoldLine(label, type){
       const valYN = state[type] === "Sim" ? "SIM" : "NÃO";
       const det = v(type + "-detalhe");
@@ -656,13 +661,13 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       return `${label}: ${yn}${det ? " (" + det + ")" : ""}`;
     }
 
-    function montarTextoRelatorio(){
+    function montarTextoRelatorioBase(){
       const linhas = [];
-
       linhas.push("## ADMISSÃO / EVOLUÇÃO ##");
       linhas.push("");
       linhas.push(`PACIENTE: ${v("nome")}`);
       linhas.push(`IDADE: ${v("idade")}    SEXO: ${v("sexo")}    RELIGIÃO: ${v("religiao")}`);
+      if (v("unidade")) linhas.push(`UNIDADE/SETOR: ${v("unidade")}`);
       linhas.push("");
       linhas.push(yesNoBoldLine("ALERGIAS MEDICAMENTOSAS", "alergias"));
       linhas.push(yesNoBoldLine("INTERNAÇÃO NOS ÚLTIMOS 3 MESES?", "internacao"));
@@ -715,88 +720,135 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       linhas.push("**MEMBROS:**");
       linhas.push(v("ef_membros"));
       linhas.push("");
-      linhas.push("= Exame Neurológico Detalhado =");
+      linhas.push("**EXAME NEUROLÓGICO DETALHADO:**");
       linhas.push(v("neuro_detalhado"));
-
+      linhas.push("");
       return linhas.join("\n");
     }
 
     function gerarRelatorio(){
-      const texto = montarTextoRelatorio();
+      const texto = montarTextoRelatorioBase();
       document.getElementById("finalReport").value = texto;
       document.getElementById("modalResultado").style.display = "flex";
-    }
-
-    async function copiar(){
-      const txt = document.getElementById("finalReport").value;
-
-      try{
-        if (navigator.clipboard && window.isSecureContext){
-          await navigator.clipboard.writeText(txt);
-          alert("Copiado!");
-          return;
-        }
-      }catch(e){}
-
-      const area = document.getElementById("finalReport");
-      area.select();
-      area.setSelectionRange(0, 999999);
-      try{
-        document.execCommand("copy");
-        alert("Copiado!");
-      }catch(e){
-        alert("Não foi possível copiar automaticamente. Selecione e copie manualmente.");
-      }
     }
 
     function fecharModal(){
       document.getElementById("modalResultado").style.display = "none";
     }
 
+    function copiar(){
+      const ta = document.getElementById("finalReport");
+      ta.select();
+      document.execCommand("copy");
+      alert("Texto copiado!");
+    }
+
+    function salvarPDF(){
+      const texto = document.getElementById("finalReport").value;
+      const linhas = texto.split("\n");
+      
+      const now = new Date();
+      const dataHora = now.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Anamnese - ${v("nome")}</title>
+  <style>
+    @media print {
+      @page { margin: 1cm; }
+      body { margin: 0; padding: 0; font-family: "Courier New", monospace; font-size: 11pt; line-height: 1.4; }
+      .print-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 10px 20px;
+        border-bottom: 2px solid #00695c;
+        z-index: 1000;
+        page-break-after: avoid;
+      }
+      .print-content {
+        margin-top: 120px;
+        padding: 20px;
+      }
+      .print-line {
+        page-break-inside: avoid;
+        margin-bottom: 8px;
+      }
+      h1, h2, h3 { page-break-after: avoid; }
+    }
+    body { font-family: "Courier New", monospace; margin: 0; padding: 0; }
+    .print-header { text-align: center; font-weight: bold; margin-bottom: 20px; }
+    .print-header h1 { margin: 0; color: #00695c; font-size: 18pt; }
+    .print-header .stamp { background: #00695c; color: white; padding: 5px 15px; display: inline-block; margin: 10px 0; }
+    .print-header .info { font-size: 10pt; margin: 5px 0; }
+    .print-content { padding: 20px; }
+    .print-line { margin-bottom: 8px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="print-header">
+    <h1>ANAMNESE FAST CLICK</h1>
+    <div class="stamp">ADMISSÃO / EVOLUÇÃO</div>
+    <div class="info">PACIENTE: ${v("nome")} | IDADE: ${v("idade")} | SEXO: ${v("sexo")}</div>
+    ${v("unidade") ? `<div class="info">UNIDADE: ${v("unidade")}</div>` : ""}
+    <div class="info">DATA/HORA: ${dataHora}</div>
+  </div>
+  <div class="print-content">
+    ${linhas.map(l => `<div class="print-line">${l.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`).join("")}
+  </div>
+</body>
+</html>
+      `);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    }
+
     function limparTudo(){
-      const ok = confirm("Deseja limpar todos os campos e iniciar uma nova anamnese?");
-      if (!ok) return;
-
+      if (!confirm("Deseja limpar todos os campos e iniciar uma nova anamnese?")) return;
       const sexoAtual = document.getElementById("sexo").value;
-
       document.getElementById("nome").value = "";
       document.getElementById("idade").value = "";
+      document.getElementById("unidade").value = "";
       document.getElementById("religiao").value = "Católico";
-
-      document.getElementById("qp").value = "";
-      document.getElementById("hda").value = "";
+      setOption("alergias", "Não");
+      setOption("internacao", "Não");
+      setOption("tabagismo", "Não");
+      setOption("etilismo", "Não");
+      setOption("drogas", "Não");
       document.getElementById("hpp").value = "";
       document.getElementById("hf").value = "";
       document.getElementById("meds_continuos").value = "";
       document.getElementById("labs").value = "";
-
+      document.getElementById("qp").value = "";
+      document.getElementById("hda").value = "";
       document.getElementById("pa").value = "";
       document.getElementById("fc").value = "";
       document.getElementById("fr").value = "";
       document.getElementById("sat").value = "";
       document.getElementById("temp").value = "";
       document.getElementById("hgt").value = "";
-
-      ["ef_ectoscopia","ef_cp","ef_acv","ef_ap","ef_abd","ef_neuro","ef_membros","neuro_detalhado"].forEach(id=>{
+      ["ef_ectoscopia","ef_cp","ef_acv","ef_ap","ef_abd","ef_neuro","ef_membros","neuro_detalhado"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = "";
-        lastAuto[id] = "";
       });
-
       aplicarGenero(sexoAtual);
-      initLastAuto(sexoAtual);
-
-      setOption("alergias", "Não");
-      setOption("internacao", "Não");
-      setOption("tabagismo", "Não");
-      setOption("etilismo", "Não");
-      setOption("drogas", "Não");
-
-      document.getElementById("finalReport").value = "";
-      fecharModal();
-
+      initMedsField();
       ensureMedsPrefix();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({top: 0, behavior: "smooth"});
     }
 
     window.addEventListener("load", () => {
@@ -804,7 +856,6 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       aplicarGenero(sexoAtual);
       initLastAuto(sexoAtual);
       initMedsField();
-      ensureMedsPrefix();
     });
   </script>
 </body>
