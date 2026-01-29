@@ -335,8 +335,7 @@
 
     <div class="row">
       <div class="col">
-        <span class="input-label label-alert">ALERGIAS MEDICAMENTOSAS 
-</span>
+        <span class="input-label label-alert">ALERGIAS MEDICAMENTOSAS (tudo em negrito)</span>
         <div class="toggle-group" id="alergias-group">
           <div class="toggle-btn active" onclick="setOption('alergias','Não')">NÃO</div>
           <div class="toggle-btn" onclick="setOption('alergias','Sim')">SIM</div>
@@ -345,8 +344,7 @@
       </div>
 
       <div class="col">
-        <span class="input-label label-alert">INTERNAÇÃO NOS ÚLTIMOS 3 MESES? 
-</span>
+        <span class="input-label label-alert">INTERNAÇÃO NOS ÚLTIMOS 3 MESES? (tudo em negrito)</span>
         <div class="toggle-group" id="internacao-group">
           <div class="toggle-btn active" onclick="setOption('internacao','Não')">NÃO</div>
           <div class="toggle-btn" onclick="setOption('internacao','Sim')">SIM</div>
@@ -399,14 +397,6 @@
       </div>
     </div>
 
-    <div class="section-title">História</div>
-
-    <span class="input-label label-bold">QUEIXA PRINCIPAL (QP)</span>
-    <input type="text" id="qp" class="input-field" style="margin-bottom:10px;" placeholder="Descreva a QP" />
-
-    <span class="input-label label-bold">HISTÓRIA DA DOENÇA ATUAL (HDA)</span>
-    <textarea id="hda" rows="4" placeholder="Descreva a HDA..."></textarea>
-
     <div class="row">
       <div class="col">
         <span class="input-label label-bold">MEDICAMENTOS DE USO CONTÍNUO</span>
@@ -417,6 +407,14 @@
         <textarea id="labs" rows="6" placeholder="Cole/registre aqui os resultados (hemograma, eletrólitos, gaso, etc.)."></textarea>
       </div>
     </div>
+
+    <div class="section-title">História</div>
+
+    <span class="input-label label-bold">QUEIXA PRINCIPAL (QP)</span>
+    <input type="text" id="qp" class="input-field" style="margin-bottom:10px;" placeholder="Descreva a QP" />
+
+    <span class="input-label label-bold">HISTÓRIA DA DOENÇA ATUAL (HDA)</span>
+    <textarea id="hda" rows="4" placeholder="Descreva a HDA..."></textarea>
 
     <div class="section-title">Exame Físico</div>
 
@@ -745,6 +743,12 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       alert("Texto copiado!");
     }
 
+    function renderMarkdownToHTML(text) {
+      return text
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br />');
+    }
+
     function salvarPDF(){
       const texto = document.getElementById("finalReport").value;
       const linhas = texto.split("\n");
@@ -768,7 +772,7 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
   <style>
     @media print {
       @page { margin: 1cm; }
-      body { margin: 0; padding: 0; font-family: "Courier New", monospace; font-size: 11pt; line-height: 1.4; }
+      body { margin: 0; padding: 0; font-family: "Courier New", monospace; font-size: 11pt; line-height: 1.5; }
       .print-header {
         position: fixed;
         top: 0;
@@ -786,8 +790,9 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
       }
       .print-line {
         page-break-inside: avoid;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
       }
+      strong { font-weight: bold; }
       h1, h2, h3 { page-break-after: avoid; }
     }
     body { font-family: "Courier New", monospace; margin: 0; padding: 0; }
@@ -796,7 +801,8 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
     .print-header .stamp { background: #00695c; color: white; padding: 5px 15px; display: inline-block; margin: 10px 0; }
     .print-header .info { font-size: 10pt; margin: 5px 0; }
     .print-content { padding: 20px; }
-    .print-line { margin-bottom: 8px; white-space: pre-wrap; }
+    .print-line { margin-bottom: 12px; }
+    strong { font-weight: bold; }
   </style>
 </head>
 <body>
@@ -808,7 +814,7 @@ Coordenação: Eumétrica. Romberg negativo. Sem sinais meníngeos.`
     <div class="info">DATA/HORA: ${dataHora}</div>
   </div>
   <div class="print-content">
-    ${linhas.map(l => `<div class="print-line">${l.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`).join("")}
+    ${linhas.map(l => `<div class="print-line">${renderMarkdownToHTML(l.replace(/</g, "&lt;").replace(/>/g, "&gt;"))}</div>`).join("")}
   </div>
 </body>
 </html>
